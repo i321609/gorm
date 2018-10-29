@@ -1118,6 +1118,20 @@ func (scope *Scope) getTableOptions() string {
 	}
 	return " " + tableOptions.(string)
 }
+// getTableTypeOptions return the table type options string or an empty string if the table type options does not exist
+// For hana, the table type including:
+// ROW | COLUMN
+// | HISTORY COLUMN TABLE
+// | GLOBAL TEMPORARY { ROW | [ COLUMN ] } TABLE
+// | LOCAL TEMPORARY { ROW | [ COLUMN ] } TABLE
+// | VIRTUAL TABLE
+func (scope *Scope) getTableTypeOptions() string {
+	tableTypeOptions, ok := scope.Get("gorm:table_type_options")
+	if !ok {
+		return ""
+	}
+	return " " + tableTypeOptions.(string)
+}
 
 func (scope *Scope) createJoinTable(field *StructField) {
 	if relationship := field.Relationship; relationship != nil && relationship.JoinTableHandler != nil {
@@ -1149,7 +1163,8 @@ func (scope *Scope) createJoinTable(field *StructField) {
 				}
 			}
 
-			scope.Err(scope.NewDB().Exec(fmt.Sprintf("CREATE TABLE %v (%v, PRIMARY KEY (%v))%s", scope.Quote(joinTable), strings.Join(sqlTypes, ","), strings.Join(primaryKeys, ","), scope.getTableOptions())).Error)
+			scope.Err(scope.NewDB().Exec(fmt.Sprintf("CREATE %v TABLE %v (%v, PRIMARY KEY (%v))%s", 
+				scope.getTableTypeOptions(), scope.Quote(joinTable), strings.Join(sqlTypes, ","), strings.Join(primaryKeys, ","), scope.getTableOptions())).Error)
 		}
 		scope.NewDB().Table(joinTable).AutoMigrate(joinTableHandler)
 	}
@@ -1184,7 +1199,8 @@ func (scope *Scope) createTable() *Scope {
 		primaryKeyStr = fmt.Sprintf(", PRIMARY KEY (%v)", strings.Join(primaryKeys, ","))
 	}
 
-	scope.Raw(fmt.Sprintf("CREATE TABLE %v (%v %v)%s", scope.QuotedTableName(), strings.Join(tags, ","), primaryKeyStr, scope.getTableOptions())).Exec()
+	scope.Raw(fmt.Sprintf("CREATE %v TABLE %v (%v %v)%s", scope.getTableTypeOptions(), 
+		scope.QuotedTableName(), strings.Join(tags, ","), primaryKeyStr, scope.getTableOptions())).Exec()
 
 	scope.autoIndex()
 	return scope
