@@ -52,6 +52,8 @@ type Dialect interface {
 
 	// CurrentDatabase return current database name
 	CurrentDatabase() string
+
+	LastInsertId(result sql.Result, querySql string, scope *Scope) (int64, error)
 }
 
 var dialectsMap = map[string]Dialect{}

@@ -178,3 +178,7 @@ func (DefaultForeignKeyNamer) BuildKeyName(kind, tableName string, fields ...str
 func IsByteArrayOrSlice(value reflect.Value) bool {
 	return (value.Kind() == reflect.Array || value.Kind() == reflect.Slice) && value.Type().Elem() == reflect.TypeOf(uint8(0))
 }
+
+func (commonDialect) LastInsertId(result sql.Result, querySql string, scope *Scope) (int64, error) {
+	return result.LastInsertId()
+}

@@ -122,7 +122,9 @@ func createCallback(scope *Scope) {
 
 				// set primary value to primary field
 				if primaryField != nil && primaryField.IsBlank {
-					if primaryValue, err := result.LastInsertId(); scope.Err(err) == nil {
+					querySql := fmt.Sprintf("select %s from %s ORDER BY %s DESC LIMIT 1", primaryField.DBName, scope.QuotedTableName(), primaryField.DBName)
+
+					if primaryValue, err := scope.Dialect().LastInsertId(result, querySql, scope); scope.Err(err) == nil {
 						scope.Err(primaryField.Set(primaryValue))
 					}
 				}
