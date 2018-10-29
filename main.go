@@ -591,8 +591,9 @@ func (s *DB) HasTable(value interface{}) bool {
 
 // AutoMigrate run auto migration for given models, will only add missing fields, won't delete/change current data
 func (s *DB) AutoMigrate(values ...interface{}) *DB {
-	db := s.Unscoped()
+	var db * DB
 	for _, value := range values {
+		db = s.Unscoped()
 		db = db.NewScope(value).autoMigrate().db
 	}
 	return db
