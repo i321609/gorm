@@ -362,8 +362,12 @@ func (scope *Scope) Exec() *Scope {
 
 	if !scope.HasError() {
 		if result, err := scope.SQLDB().Exec(scope.SQL, scope.SQLVars...); scope.Err(err) == nil {
-			if count, err := result.RowsAffected(); scope.Err(err) == nil {
+			if count, err := result.RowsAffected(); err == nil {
 				scope.db.RowsAffected = count
+			} else if scope.Dialect().GetName() == "hdb" && err.Error() == "no RowsAffected available after DDL statement" {
+				scope.db.RowsAffected = 0
+			} else {
+				scope.Err(err)
 			}
 		}
 	}
