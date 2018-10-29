@@ -122,22 +122,44 @@ func (s JoinTableHandler) Add(handler JoinTableHandlerInterface, db *DB, source 
 		values = append(values, value)
 	}
 
-	for _, value := range values {
-		values = append(values, value)
+	if scope.Dialect().GetName() == "hdb" {
+		var sql string
+		var count int64
+		sql = fmt.Sprintf(
+			"SELECT count(*) FROM %s WHERE %s",
+			quotedTable,
+			strings.Join(conditions, " AND "),
+		)
+
+		scope.SQLDB().QueryRow(sql, values...).Scan(&count)
+		if count == 0 {
+			sql = fmt.Sprintf(
+				"INSERT INTO %v (%v) VALUES( %v )",
+				quotedTable,
+				strings.Join(assignColumns, ","),
+				strings.Join(binVars, ","))
+
+			return db.Exec(sql, values...).Error
+		}
+		return nil
+	} else {
+		for _, value := range values {
+			values = append(values, value)
+		}
+
+		quotedTable := scope.Quote(handler.Table(db))
+		sql := fmt.Sprintf(
+			"INSERT INTO %v (%v) SELECT %v %v WHERE NOT EXISTS (SELECT * FROM %v WHERE %v)",
+			quotedTable,
+			strings.Join(assignColumns, ","),
+			strings.Join(binVars, ","),
+			scope.Dialect().SelectFromDummyTable(),
+			quotedTable,
+			strings.Join(conditions, " AND "),
+		)
+
+		return db.Exec(sql, values...).Error
 	}
-
-	quotedTable := scope.Quote(handler.Table(db))
-	sql := fmt.Sprintf(
-		"INSERT INTO %v (%v) SELECT %v %v WHERE NOT EXISTS (SELECT * FROM %v WHERE %v)",
-		quotedTable,
-		strings.Join(assignColumns, ","),
-		strings.Join(binVars, ","),
-		scope.Dialect().SelectFromDummyTable(),
-		quotedTable,
-		strings.Join(conditions, " AND "),
-	)
-
-	return db.Exec(sql, values...).Error
 }
 
 // Delete delete relationship in join table for sources
