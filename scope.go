@@ -488,6 +488,10 @@ func (scope *Scope) scan(rows *sql.Rows, columns []string, fields []*Field) {
 
 	for index, column := range columns {
 		values[index] = &ignored
+		if scope.Dialect().GetName() == "hdb" {
+			columns[index] = strings.ToLower(column)
+			column = columns[index]
+		}
 
 		selectFields = fields
 		offset := 0
@@ -1259,7 +1263,7 @@ func (scope *Scope) autoMigrate() *Scope {
 			if !scope.Dialect().HasColumn(tableName, field.DBName) {
 				if field.IsNormal {
 					sqlTag := scope.Dialect().DataTypeOf(field)
-					scope.Raw(fmt.Sprintf("ALTER TABLE %v ADD %v %v;", quotedTableName, scope.Quote(field.DBName), sqlTag)).Exec()
+					scope.Dialect().AddColumn(quotedTableName, scope.Quote(field.DBName), sqlTag)
 				}
 			}
 			scope.createJoinTable(field)
