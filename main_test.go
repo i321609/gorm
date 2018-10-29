@@ -14,10 +14,10 @@ import (
 
 	"github.com/erikstmartin/go-testdb"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mssql"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/jinzhu/gorm/dialects/postgres"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	//_ "github.com/jinzhu/gorm/dialects/mssql"
+	//_ "github.com/jinzhu/gorm/dialects/mysql"
+	//"github.com/jinzhu/gorm/dialects/postgres"
+	//_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/jinzhu/now"
 	_ "github.com/jinzhu/gorm/dialects/hdb"
 )
@@ -818,7 +818,7 @@ func TestTimeWithZone(t *testing.T) {
 	}
 }
 
-func TestHstore(t *testing.T) {
+/*func TestHstore(t *testing.T) {
 	type Details struct {
 		Id   int64
 		Bulk postgres.Hstore
@@ -862,7 +862,7 @@ func TestHstore(t *testing.T) {
 			t.Errorf("Details should be existed")
 		}
 	}
-}
+}*/
 
 func TestSetAndGet(t *testing.T) {
 	if value, ok := DB.Set("hello", "world").Get("hello"); !ok {
