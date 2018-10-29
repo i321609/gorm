@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"database/sql"
 )
 
 // DefaultForeignKeyNamer contains the default foreign key name generator method
