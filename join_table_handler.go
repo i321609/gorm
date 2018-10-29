@@ -121,6 +121,7 @@ func (s JoinTableHandler) Add(handler JoinTableHandlerInterface, db *DB, source 
 		conditions = append(conditions, fmt.Sprintf("%v = ?", scope.Quote(key)))
 		values = append(values, value)
 	}
+	quotedTable := scope.Quote(handler.Table(db))
 
 	if scope.Dialect().GetName() == "hdb" {
 		var sql string
@@ -147,7 +148,6 @@ func (s JoinTableHandler) Add(handler JoinTableHandlerInterface, db *DB, source 
 			values = append(values, value)
 		}
 
-		quotedTable := scope.Quote(handler.Table(db))
 		sql := fmt.Sprintf(
 			"INSERT INTO %v (%v) SELECT %v %v WHERE NOT EXISTS (SELECT * FROM %v WHERE %v)",
 			quotedTable,

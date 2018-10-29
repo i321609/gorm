@@ -35,6 +35,8 @@ type Dialect interface {
 	HasColumn(tableName string, columnName string) bool
 	// ModifyColumn modify column's type
 	ModifyColumn(tableName string, columnName string, typ string) error
+	// AddColumn add a new column
+	AddColumn(tableName string, columnName string, typ string) error
 
 	// LimitAndOffsetSQL return generated SQL with Limit and Offset, as mssql has special case
 	LimitAndOffsetSQL(limit, offset interface{}) string

@@ -126,6 +126,10 @@ func (s commonDialect) HasColumn(tableName string, columnName string) bool {
 	s.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = ? AND table_name = ? AND column_name = ?", currentDatabase, tableName, columnName).Scan(&count)
 	return count > 0
 }
+func (s commonDialect) AddColumn(tableName string, columnName string, typ string) error {
+	_, err := s.db.Exec(fmt.Sprintf("ALTER TABLE %v ADD %v %v", tableName, columnName, typ))
+	return err
+}
 
 func (s commonDialect) ModifyColumn(tableName string, columnName string, typ string) error {
 	_, err := s.db.Exec(fmt.Sprintf("ALTER TABLE %v ALTER COLUMN %v TYPE %v", tableName, columnName, typ))
