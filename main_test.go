@@ -19,6 +19,7 @@ import (
 	"github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/jinzhu/now"
+	_ "github.com/jinzhu/gorm/dialects/hdb"
 )
 
 var (
@@ -62,6 +63,12 @@ func OpenTestConnection() (db *gorm.DB, err error) {
 			dbDSN = "sqlserver://gorm:LoremIpsum86@localhost:9930?database=gorm"
 		}
 		db, err = gorm.Open("mssql", dbDSN)
+	case "hdb":
+		fmt.Println("testing hdb...")
+		if dbDSN == "" {
+			dbDSN = "m98://SYSTEM:Sybase123@10.58.180.202:30215?CURRENTSCHEMA=ORM_TEST"
+		}
+		db, err = gorm.Open("hdb", dbDSN)
 	default:
 		fmt.Println("testing sqlite3...")
 		db, err = gorm.Open("sqlite3", filepath.Join(os.TempDir(), "gorm.db"))
